@@ -1,0 +1,129 @@
+<div class="sales-opportunities-management-container">
+  <header class="app-header">
+    <div class="logo-section">
+      <!-- Your Logo - Changed to angular-logo.png for consistency -->
+      <a routerLink="/dashboard" class="header-logo-link">
+        <img src="assets/images.png" alt="App Logo" class="logo-image"><!-- Added title for consistency with dashboard header -->
+      </a>
+    </div>
+    <div class="header-right">
+      <!-- Dashboard Link -->
+      <a routerLink="/dashboard" class="dashboard-link-right">Dashboard</a>
+      <!-- Logout Button - Changed from <a> to <button> and added (click) handler -->
+      <button class="logout-button" (click)="logout()">Logout</button>
+    </div>
+  </header>
+    <h2>Sales Opportunities Management</h2>
+  
+    <!-- Status Messages -->
+    <div *ngIf="isLoading" class="loading-spinner">Loading...</div>
+    <div *ngIf="errorMessage" class="alert-message error">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="alert-message success">{{ successMessage }}</div>
+  
+    <!-- Sales Opportunity Form -->
+    <div class="form-section">
+      <h3>Add New Sales Opportunity</h3>
+      <form #opportunityForm="ngForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="name">Opportunity Name:</label>
+          <input type="text" id="name" name="name" [(ngModel)]="opportunity.name" required #nameField="ngModel">
+          <div *ngIf="nameField.invalid && (nameField.dirty || nameField.touched)" class="error-text">
+            <div *ngIf="nameField.errors?.['required']">Opportunity Name is required.</div>
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <label for="stage">Stage:</label>
+          <select id="stage" name="stage" [(ngModel)]="opportunity.stage" required #stageField="ngModel">
+            <option [ngValue]="null" disabled>-- Select Stage --</option>
+            <option *ngFor="let stage of opportunityStages" [ngValue]="stage">{{ stage }}</option>
+          </select>
+          <div *ngIf="stageField.invalid && (stageField.dirty || stageField.touched)" class="error-text">
+            <div *ngIf="stageField.errors?.['required']">Stage is required.</div>
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <label for="amount">Amount:</label>
+          <input type="number" id="amount" name="amount" [(ngModel)]="opportunity.amount" min="0" #amountField="ngModel">
+          <div *ngIf="amountField.invalid && (amountField.dirty || amountField.touched)" class="error-text">
+            <div *ngIf="amountField.errors?.['min']">Amount cannot be negative.</div>
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <label for="closeDate">Close Date:</label>
+          <input type="date" id="closeDate" name="closeDate" [(ngModel)]="opportunity.closeDate" #closeDateField="ngModel">
+        </div>
+  
+        <div class="form-group">
+          <label for="leadSource">Lead Source:</label>
+          <input type="text" id="leadSource" name="leadSource" [(ngModel)]="opportunity.leadSource" required #leadSourceField="ngModel">
+          <div *ngIf="leadSourceField.invalid && (leadSourceField.dirty || leadSourceField.touched)" class="error-text">
+            <div *ngIf="leadSourceField.errors?.['required']">Lead Source is required.</div>
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <label for="notes">Notes:</label>
+          <textarea id="notes" name="notes" [(ngModel)]="opportunity.notes" rows="3"></textarea>
+        </div>
+  
+        <div class="form-actions">
+          <button type="submit" [disabled]="opportunityForm.invalid || isLoading" class="submit-button">Add Opportunity</button>
+          <button type="button" (click)="resetForm()" class="reset-button">Reset</button>
+        </div>
+      </form>
+    </div>
+  
+    <!-- Sales Opportunity Display Section -->
+    <div class="opportunity-display-section">
+      <h3>View Sales Opportunities</h3>
+  
+      <!-- Input for Specific Opportunity ID -->
+      <div class="input-group">
+        <label for="opportunityIdInput">Enter Opportunity ID:</label>
+        <div class="input-with-button">
+          <input type="number" id="opportunityIdInput" name="opportunityIdInput" [(ngModel)]="opportunityIdInput" placeholder="e.g., 123">
+          <button type="button" (click)="fetchOpportunityFromInput()" [disabled]="!opportunityIdInput || isLoading" class="fetch-button">Get Opportunity</button>
+        </div>
+        <div *ngIf="opportunityIdInput === null && !isLoading && displayedOpportunities.length === 0 && !errorMessage" class="info-text">
+          Enter an ID above to view a specific sales opportunity.
+        </div>
+      </div>
+  
+      <!-- Cards for Displayed Opportunities -->
+      <div class="opportunity-card-grid mt-4">
+        <ng-container *ngIf="displayedOpportunities.length > 0; else noOpportunities">
+          <div class="opportunity-card" *ngFor="let opp of displayedOpportunities">
+            <div class="card-header">
+              <h4>{{ opp.name }} (ID: {{ opp.id }})</h4>
+              <span class="card-stage">{{ opp.stage }}</span>
+            </div>
+            <div class="card-body">
+              <p><strong>Amount:</strong> {{ opp.amount | currency:'USD':'symbol':'1.2-2' }}</p>
+              <p><strong>Close Date:</strong> {{ opp.closeDate | date:'mediumDate' }}</p>
+              <p><strong>Lead Source:</strong> {{ opp.leadSource }}</p>
+              <p *ngIf="opp.notes"><strong>Notes:</strong> {{ opp.notes }}</p>
+            </div>
+          </div>
+        </ng-container>
+        <ng-template #noOpportunities>
+          <p class="no-data-message" *ngIf="!isLoading && !errorMessage">
+            No sales opportunities to display.
+          </p>
+          <p class="no-data-message" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </p>
+        </ng-template>
+      </div>
+  
+      <div class="divider">OR</div>
+  
+      <!-- Button to View All Sales Opportunities -->
+      <div class="view-all-opportunities-section">
+        <button type="button" (click)="showAllOpportunities()" [disabled]="isLoading" class="view-all-button">View All Sales Opportunities</button>
+      </div>
+    </div>
+  </div>
+  

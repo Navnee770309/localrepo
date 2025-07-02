@@ -1,0 +1,92 @@
+<div class="min-h-screen bg-gray-100 p-8 font-sans">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Agent Management</h1>
+
+    <!-- Add Agent Form Section -->
+    <div class="mb-8 p-6 border border-gray-200 rounded-lg shadow-sm">
+      <h2 class="text-2xl font-semibold text-gray-700 mb-4">Add New Agent</h2>
+      <form [formGroup]="agentForm" (ngSubmit)="addAgent()">
+        <div class="mb-4">
+          <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Agent Name:</label>
+          <input type="text" id="name" formControlName="name"
+                 class="shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 placeholder="Enter agent name">
+          <div *ngIf="agentForm.get('name')?.invalid && agentForm.get('name')?.touched" class="text-red-500 text-xs mt-1">
+            Name is required.
+          </div>
+        </div>
+        <div class="mb-6">
+          <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Agent Email:</label>
+          <input type="email" id="email" formControlName="email"
+                 class="shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 placeholder="Enter agent email">
+          <div *ngIf="agentForm.get('email')?.invalid && agentForm.get('email')?.touched" class="text-red-500 text-xs mt-1">
+            <span *ngIf="agentForm.get('email')?.errors?.['required']">Email is required.</span>
+            <span *ngIf="agentForm.get('email')?.errors?.['email']">Enter a valid email address.</span>
+          </div>
+        </div>
+        <div class="flex items-center justify-between">
+          <button type="submit" [disabled]="agentForm.invalid"
+                  class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
+            Add Agent
+          </button>
+        </div>
+        <div *ngIf="addAgentMessage" [ngClass]="{'text-green-700 bg-green-100': addAgentSuccess, 'text-red-700 bg-red-100': !addAgentSuccess}" class="mt-4 p-3 rounded-md border"
+             role="alert">
+          {{ addAgentMessage }}
+        </div>
+      </form>
+    </div>
+
+    <!-- Display Agents Section -->
+    <div class="p-6 border border-gray-200 rounded-lg shadow-sm">
+      <h2 class="text-2xl font-semibold text-gray-700 mb-4">View Agents</h2>
+      <div class="mb-4">
+        <label for="displayOption" class="block text-gray-700 text-sm font-bold mb-2">Display Option:</label>
+        <select id="displayOption" [(ngModel)]="selectedDisplayOption" (change)="onDisplayOptionChange()"
+                class="shadow border rounded-md w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <option value="all">All Agents</option>
+          <option value="specific">Specific Agent (by ID)</option>
+        </select>
+      </div>
+
+      <!-- Specific Agent Input (conditionally displayed) -->
+      <div *ngIf="selectedDisplayOption === 'specific'" class="mb-6 flex flex-col sm:flex-row sm:items-end gap-3">
+        <div class="flex-grow">
+          <label for="agentId" class="block text-gray-700 text-sm font-bold mb-2">Agent ID:</label>
+          <input type="number" id="agentId" [(ngModel)]="specificAgentId"
+                 class="shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                 placeholder="Enter Agent ID">
+        </div>
+        <button (click)="getSpecificAgent()"
+                class="mt-2 sm:mt-0 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-300 ease-in-out">
+          Get Agent
+        </button>
+        <div *ngIf="specificAgentMessage" class="text-red-500 text-xs mt-1 sm:ml-4 sm:w-auto w-full">{{ specificAgentMessage }}</div>
+      </div>
+
+      <!-- Agent Cards Display -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+        <ng-container *ngIf="agents$ | async as agents; else loading">
+          <ng-container *ngIf="agents.length > 0; else noAgents">
+            <div *ngFor="let agent of agents"
+                 class="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105 border border-gray-200">
+              <div class="p-5">
+                <h3 class="text-xl font-semibold text-gray-800 mb-2 truncate" title="{{ agent.name }}">{{ agent.name }}</h3>
+                <p class="text-gray-600 text-sm mb-1"><strong>ID:</strong> <span class="font-mono">{{ agent.id }}</span></p>
+                <p class="text-gray-600 text-sm mb-1 truncate" title="{{ agent.email }}"><strong>Email:</strong> {{ agent.email }}</p>
+                <p class="text-gray-600 text-sm"><strong>Assigned Tickets:</strong> {{ agent.currentAssignedTicketsCount }}</p>
+              </div>
+            </div>
+          </ng-container>
+          <ng-template #noAgents>
+            <div class="col-span-full text-center text-gray-500 py-4 text-lg">No agents to display.</div>
+          </ng-template>
+        </ng-container>
+        <ng-template #loading>
+          <div class="col-span-full text-center text-gray-500 py-4 text-lg">Loading agents...</div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>

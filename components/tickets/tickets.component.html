@@ -1,0 +1,77 @@
+<div class="tickets-management-container">
+  <header class="app-header">
+    <div class="logo-section">
+      <!-- Your Logo - Changed to angular-logo.png for consistency -->
+      <a routerLink="/dashboard" class="header-logo-link">
+        <img src="assets/images.png" alt="App Logo" class="logo-image"><!-- Added title for consistency with dashboard header -->
+      </a>
+    </div>
+    <div class="header-right">
+      <!-- Dashboard Link -->
+      <a routerLink="/dashboard" class="dashboard-link-right">Dashboard</a>
+      <!-- Logout Button - Changed from <a> to <button> and added (click) handler -->
+      <button class="logout-button" (click)="logout()">Logout</button>
+    </div>
+  </header>
+    <h2>Ticket Management</h2>
+  
+    <!-- Status Messages -->
+    <div *ngIf="isLoading" class="loading-spinner">Loading...</div>
+    <div *ngIf="errorMessage" class="alert-message error">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="alert-message success">{{ successMessage }}</div>
+  
+    
+  
+    <!-- Ticket Display Section -->
+    <div class="ticket-display-section">
+      <h3>View Tickets</h3>
+  
+      <!-- Input for Specific Ticket ID -->
+      <div class="input-group">
+        <label for="ticketIdInput">Enter Ticket ID:</label>
+        <div class="input-with-button">
+          <input type="number" id="ticketIdInput" name="ticketIdInput" [(ngModel)]="ticketIdInput" placeholder="e.g., 123">
+          <button type="button" (click)="fetchTicketFromInput()" [disabled]="!ticketIdInput || isLoading" class="fetch-button">Get Ticket</button>
+        </div>
+        <div *ngIf="ticketIdInput === null && !isLoading && displayedTickets.length === 0 && !errorMessage" class="info-text">
+          Enter an ID above to view a specific ticket.
+        </div>
+      </div>
+  
+      <!-- Cards for Displayed Tickets -->
+      <div class="ticket-card-grid mt-4">
+        <ng-container *ngIf="displayedTickets.length > 0; else noTickets">
+          <div class="ticket-card" *ngFor="let t of displayedTickets">
+            <div class="card-header">
+              <h4>Ticket #{{ t.id }}</h4>
+              <span class="card-status status-{{ t.status?.toLowerCase() }}">{{ t.status }}</span>
+            </div>
+            <div class="card-body">
+              <p><strong>Issue:</strong> {{ t.issue }}</p>
+              <p><strong>Customer ID:</strong> {{ t.customerId }}</p>
+              <p><strong>Product ID:</strong> {{ t.productId }}</p>
+              <p *ngIf="t.assignedAgentName"><strong>Assigned Agent:</strong> {{ t.assignedAgentName }} (ID: {{ t.assignedAgentId }})</p>
+              <p><strong>Created:</strong> {{ t.createdAt | date:'medium' }}</p>
+              <p *ngIf="t.updatedAt"><strong>Updated:</strong> {{ t.updatedAt | date:'medium' }}</p>
+            </div>
+          </div>
+        </ng-container>
+        <ng-template #noTickets>
+          <p class="no-data-message" *ngIf="!isLoading && !errorMessage">
+            No tickets to display.
+          </p>
+          <p class="no-data-message" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </p>
+        </ng-template>
+      </div>
+  
+      <div class="divider">OR</div>
+  
+      <!-- Button to View All Tickets -->
+      <div class="view-all-tickets-section">
+        <button type="button" (click)="showAllTickets()" [disabled]="isLoading" class="view-all-button">View All Tickets</button>
+      </div>
+    </div>
+  </div>
+  

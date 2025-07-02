@@ -1,0 +1,52 @@
+main {
+  width: 90%;
+  max-width: 50rem;
+  margin: 2.5rem auto;
+  display: grid;
+  /* Changed to grid-template-rows to explicitly define row heights for main */
+  /* One row for #users that can grow and one for remaining content if any */
+  grid-template-rows: 1fr; /* This allows the single row to take available space */
+  gap: 2rem;
+  /* Add min-height to ensure main takes up enough space for scrolling if content is short */
+  min-height: calc(100vh - 2.5rem - 2rem); /* Adjust this calculation based on your header's actual height and main's margins */
+  /* Alternatively, if you want main to fill remaining viewport height */
+  height: calc(100vh - (height of header + its margin-bottom));
+  /* For example, if header is ~100px and has 2rem margin-bottom */
+  /* height: calc(100vh - 100px - 2rem); */
+  /* It's often easier to set min-height or let grid/flex parent manage */
+}
+
+#users {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column; /* Ensure items stack vertically for scrolling */
+  gap: 0.5rem;
+
+  /* --- Key changes for scrollability --- */
+  overflow-y: auto; /* Enables vertical scrolling when content overflows */
+  max-height: calc(100vh - var(--header-height) - var(--main-top-margin) - var(--main-bottom-margin) - var(--gap-between-main-items));
+  /* You'll need to define CSS variables or use explicit values for calculation. */
+  /* A simpler approach often involves setting a fixed height or a percentage of its parent. */
+  height: 100%; /* Make it fill the available height within 'main' */
+  box-sizing: border-box; /* Include padding/border in height calculation */
+}
+
+@media (min-width: 768px) {
+  main {
+      margin: 4rem auto;
+      /* Reverted to 1fr 3fr for horizontal layout in desktop view */
+      grid-template-columns: 1fr 3fr;
+      /* Removed grid-template-rows as it conflicts with horizontal split for main */
+      /* If you still want vertical scrolling on #users in desktop,
+         ensure #users gets its own max-height */
+  }
+
+  #users {
+      flex-direction: column;
+      /* Add max-height for scrolling in desktop view as well */
+      max-height: 80vh; /* Example: 80% of viewport height on desktop */
+      /* Or calculate based on the specific layout */
+  }
+}
